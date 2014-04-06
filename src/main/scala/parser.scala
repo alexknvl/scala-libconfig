@@ -25,27 +25,6 @@ private object CommonPredicates {
   val PlusMinus = CharPredicate("+-")
 }
 
-object PathParser {
-  def apply(path: String): Option[Seq[PathItem]] = {
-    try {
-      val items = path.split("\\.")
-
-      Some(items.map { item: String =>
-        if (item.head == '[' && item.last == ']') {
-          val indexStr = item.slice(1, item.length - 1)
-          IndexedItem(Integer.parseInt(indexStr))
-        } else if (CommonPredicates.IdAlpha.matchesAll(item)) {
-          NamedItem(item)
-        } else {
-          throw new RuntimeException
-        }
-      })
-    } catch {
-      case NonFatal(e) => None
-    }
-  }
-}
-
 class ConfigParser(val input: ParserInput) extends Parser with StringBuilding {
   import CommonPredicates._
 
@@ -124,6 +103,10 @@ object ConfigParser {
 
 object App {
   def main(args: Array[String]) {
+    import com.alexknvl.libconfig.conv._
+    import com.alexknvl.libconfig.conv.DefaultProtocol._
+    import com.alexknvl.libconfig.ast.Getters._
+
     val config = ConfigParser("""
       # Example application configuration file
 
@@ -138,7 +121,7 @@ object App {
           pos = { x = 350; y = 250; };
         };
 
-        list = ( ( "abc", 123, true ), 1.234, ( /* an empty list */) );
+        list = ( ( "abc", 123 ), 1.234, ( /* an empty list */) );
 
         books = ( { title  = "Treasure Island";
                    author = "Robert Louis Stevenson";
@@ -159,8 +142,8 @@ object App {
       };
       """)
 
-    println(config("version"))
-    println(config("application.window.title"))
-    println(config("application.list.[0]"))
+    println(config("version").to[String])
+    println(config("application.window.title").to[String])
+    println(config("application.list.[0]").to[(String, Int)])
   }
 }
