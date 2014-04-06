@@ -50,7 +50,7 @@ class ConfigParser(val input: ParserInput) extends Parser with StringBuilding {
   def Number = rule { Float | Long | Int }
   def Long = rule { capture(HexInteger | Integer) ~> (ConfigLong(_)) ~ "L" ~ WhiteSpace }
   def Int = rule { capture(HexInteger | Integer) ~> (ConfigInt(_)) ~ WhiteSpace }
-  def Float = rule { capture(Integer ~ DecFrac ~ optional(DecExp)) ~> (ConfigFloat(_)) ~ WhiteSpace }
+  def Float = rule { capture(Integer ~ ((DecFrac ~ optional(DecExp)) | DecExp)) ~> (ConfigFloat(_)) ~ WhiteSpace }
   def String = rule { StringUnwrapped ~> (ConfigString(_)) }
 
   def Identifier = rule { capture(IdAlpha ~ zeroOrMore(IdAlphaNum)) ~> (_.toString) ~ WhiteSpace }
