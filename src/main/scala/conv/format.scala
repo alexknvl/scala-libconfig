@@ -2,7 +2,7 @@ package com.alexknvl.libconfig
 
 import com.alexknvl.libconfig.ast._
 
-import annotation.implicitNotFound
+import scala.annotation.implicitNotFound
 
 package object conv {
   def configReader[T](implicit reader: ConfigReader[T]) = reader

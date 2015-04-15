@@ -58,15 +58,15 @@ class ConfigParser(val input: ParserInput) extends Parser with StringBuilding {
 
   def Characters = rule { zeroOrMore(NormalChar | '\\' ~ EscapedChar) }
   def EscapedChar = rule (
-    QuoteSlashBackSlash ~ append()
-      | 'b' ~ append('\b')
-      | 'f' ~ append('\f')
-      | 'n' ~ append('\n')
-      | 'r' ~ append('\r')
-      | 't' ~ append('\t')
+    QuoteSlashBackSlash ~ appendSB()
+      | 'b' ~ appendSB('\b')
+      | 'f' ~ appendSB('\f')
+      | 'n' ~ appendSB('\n')
+      | 'r' ~ appendSB('\r')
+      | 't' ~ appendSB('\t')
       | Unicode ~> { code => sb.append(code.asInstanceOf[Char]); () }
   )
-  def NormalChar = rule { !QuoteBackslash ~ ANY ~ append() }
+  def NormalChar = rule { !QuoteBackslash ~ ANY ~ appendSB() }
   def Unicode = rule { 'u' ~ capture(HexDigit ~ HexDigit ~ HexDigit ~ HexDigit) ~> (java.lang.Integer.parseInt(_, 16)) }
 
   def DecExp = rule { ignoreCase("e") ~ optional(anyOf("+-")) ~ Digits }
@@ -95,7 +95,7 @@ object ConfigParser {
     val parser = new ConfigParser(text)
     parser.Root.run() match {
       case Success(cg) => cg
-      case Failure(e: ParseError) => throw new RuntimeException(parser.formatError(e, showTraces = true))
+      case Failure(e: ParseError) => throw new RuntimeException(parser.formatError(e))
       case Failure(e) => throw e
     }
   }
